@@ -169,11 +169,13 @@ module Aws
           http_resp = context.http_response
           content_length = http_resp.headers['content-length'].to_i
           auth_tag_length = auth_tag_length(envelope)
+          bytes_start = content_length - auth_tag_length
+          bytes_end = content_length - 1
 
           auth_tag = context.client.get_object(
             bucket: context.params[:bucket],
             key: context.params[:key],
-            range: "bytes=-#{auth_tag_length}"
+            range: "bytes=#{bytes_start}-#{bytes_end}"
           ).body.read
 
           cipher.auth_tag = auth_tag
